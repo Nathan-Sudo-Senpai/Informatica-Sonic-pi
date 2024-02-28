@@ -2,9 +2,7 @@ Gitaar = "C:/Users/Gebruiker/Documents/Sonic pi/Samples/Gitaar"
 Effects = "C:/Users/Gebruiker/Documents/Sonic pi/Samples/Effects"
 
 use_bpm 200
-voortgang = 0
 speed = 5
-amp_inval = (ramp *(range 4,2.4,-0.1))
 amp_invalGitaar = (ramp *(range 0,0.8,0.05))
 amp_afvalPiano = (ramp *(range 1,0,-0.05))
 amp_afvalPiano2 = (ramp *(range 0.8,0,-0.05))
@@ -14,13 +12,15 @@ bed = 5
 bed2 = 4
 slaap = 0
 a = 0.7
+b = 3.5
 tel = 0
 
 define :sigh do
   sample Effects, "43565-HUMAN_BREATHE_INHALE_SHORT_EXHALE_LONG_01", rate: 0.8
 end
 
-define :guitarBegin do
+
+/define :guitarBegin do
   live_loop :afterGitaar do
     4.times do
       3.times do
@@ -39,25 +39,38 @@ define :guitarBegin do
       end
     end
   end
+end/
+define :background do
+  live_loop :backgroundmusic do
+    2.times do
+      sample Effects, "radio-static-6382 (mp3cut.net)", rate: 0.32, amp: 0.5
+      sample Effects, "temple-cave-myts-storm-6363", amp: 0.1
+      sleep 40
+    end
+    stop
+  end
 end
+
 
 define :heartbeat do
   live_loop :heart do
     with_fx :echo, phase: 1, max_phase: 0.5 do
       synth :fm, note: :c1 , amp: amp_invalHeartbeat.tick, pan: a
-      sleep 3.5
+      sleep bed2
       if a >= 0 then
         a = a - 1.4
       else
         a = a + 1.4
       end
+      
+      
     end
   end
 end
 
 define :genesis do
   
-  with_fx :reverb, room: 0.9 do
+  with_fx :reverb, room: 0.5 do
     use_synth :piano
     3.times do
       3.times do
@@ -75,9 +88,10 @@ define :genesis do
         end
         1.times do
           play :b, release: 10, amp: 0.7
-          sleep 20
+          sleep 10
           sigh
           sleep 20
+          background
         end
       end
       20.times do
@@ -88,7 +102,7 @@ define :genesis do
         end
         1.times do
           
-          if tel ==30 then
+          if tel ==33 then
             sleep 15
             sigh
             stop
@@ -101,49 +115,59 @@ define :genesis do
           if slaap == 3 then
             bed2 = 3.5
           end
-          if slaap == 5 then
+          
+        end
+        if slaap == 5 then
+          heartbeat
+          
+          
+          /if slaap == 4 then
             heartbeat
+            bed2 = 3.25
           end
+          if slaap >= 6 then
+            bed2 = bed2 - 0.25
+          end/
+          
+        end
+      end
+      
+    end
+  end
+end
+
+
+define :inthebeginning do
+  live_loop :eng do
+    with_fx :reverb, room: 0.8 do
+      use_synth :piano
+      12.times do
+        if times == 3 then
+          play :c6, amp: 0.7, release: 10
+          sleep speed
+          times = 0
+        else
+          play :c5 , release: 10
+          sleep speed
+          times = times +1
+        end
+      end
+      4.times do
+        if times == 3 then
+          play :b, amp: 1.1
+          times = 0
+          sleep 10
+          genesis
+          stop
+        else
+          play :c5, release: 10
+          sleep speed
+          times = times +1
         end
       end
     end
   end
 end
 
-define :inthebeginning do
-  live_loop :eng do
-    use_synth :piano
-    12.times do
-      if times == 3 then
-        play :c6, amp: 0.7, release: 10
-        sleep speed
-        times = 0
-      else
-        play :c5 , release: 10
-        sleep speed
-        times = times +1
-      end
-    end
-    4.times do
-      if times == 3 then
-        play :b, amp: 1.1
-        times = 0
-        sleep 10
-        voortgang = voortgang +1
-        stop
-      else
-        play :c5, release: 10
-        sleep speed
-        times = times +1
-        
-      end
-    end
-  end
-end
-
-
 inthebeginning
-
-if voortgang == 1 then
-  genesis
-end
+/genesis/
